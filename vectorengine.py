@@ -19,10 +19,17 @@ client = OpenAI()
 
 
 class VectorEngine:
-    def __init__(self) -> None:
-        pass
+    """
+    only for md files now
+    """
+    def __init__(self, folder_path, collection_name) -> None:
+        self.folder_path = folder_path # folder path of md docs
+        self.articles_df = self.md_to_df() # md files converted to df with embeddings
+        self.collection = self.create_chroma_collection(collection_name)
+        #print(self.articles_df)
 
     # Placeholder function for generating embeddings using OpenAI
+    @staticmethod
     def generate_openai_embedding(text) -> str:
         """
         Generates an embedding vector string for the given text using OpenAI's embedding API.
@@ -35,18 +42,20 @@ class VectorEngine:
 
         return response.data[0].embedding  # Assuming embedding size is 768
 
-    def md_to_df(self, folder_path) -> pd.DataFrame:
+    # give columns which need embeddings
+    def md_to_df(self) -> pd.DataFrame:
         """
-        Processes all markdown files in the given folder and compiles them into a DataFrame.
+        Processes all markdown files in the given folder and compiles them into a DataFrame with their
+        vector embeddings.
         
         :param folder_path: Path to the folder containing MD files.
         :return: A DataFrame with the columns id, file_path, title, text, title_vector, content_vector, vector_id.
         """
         data = []
         
-        for idx, filename in enumerate(os.listdir(folder_path)):
+        for idx, filename in enumerate(os.listdir(self.folder_path)):
             if filename.endswith(".md"):
-                file_path = os.path.join(folder_path, filename)
+                file_path = os.path.join(self.folder_path, filename)
                 with open(file_path, 'r', encoding='utf-8') as file:
                     content = file.read()
                     title = os.path.splitext(filename)[0]
@@ -65,12 +74,12 @@ class VectorEngine:
                     })
         
         # Convert list to DataFrame
-        df = pd.DataFrame(data)
-        return df
+        articles_df = pd.DataFrame(data)
+        articles_df['vector_id'] = articles_df['vector_id'].apply(str)
+        return articles_df
     
     # add possibility of multiple vector collections    
-    def create_collection(self, article_df, collection_name):
-
+    def create_chroma_collection(self, collection_name):
         chroma_client = chromadb.EphemeralClient() # Equivalent to chromadb.Client(), ephemeral.
         # Uncomment for persistent client
         # chroma_client = chromadb.PersistentClient()
@@ -80,47 +89,41 @@ class VectorEngine:
         embedding_function = OpenAIEmbeddingFunction(api_key=os.getenv("OPENAI_API_KEY"), model_name=EMBEDDING_MODEL)
 
         # embedding function defined here is used for search
-        self.collection = chroma_client.create_collection(name=collection_name, embedding_function=embedding_function)
+        collection = chroma_client.create_collection(name=collection_name, embedding_function=embedding_function)
         # sop_title_collection = chroma_client.create_collection(name='sop_titles', embedding_function=embedding_function)
 
         # Add the content vectors
-        self.collection.add(
-            ids=article_df.vector_id.tolist(),
-            embeddings=article_df.content_vector.tolist(),
+        collection.add(
+            ids=self.articles_df.vector_id.tolist(),
+            embeddings=self.articles_df.content_vector.tolist(),
         )
+        return collection
 
-        # Add the title vectors
-        # sop_title_collection.add(
-        #     ids=article_df.vector_id.tolist(),
-        #     embeddings=article_df.title_vector.tolist(),
-        # )
-    
-    @staticmethod
-    def search_df(collection, query, max_results, dataframe) -> pd.DataFrame:
-        results = collection.query(query_texts=query, n_results=max_results, include=['distances']) 
-        df = pd.DataFrame({
+    def search_df(self, query, max_results) -> pd.DataFrame:
+        results = self.collection.query(query_texts=query, n_results=max_results, include=['distances']) 
+        dataframe = self.articles_df
+        search_df = pd.DataFrame({
                     'id':results['ids'][0], 
                     'score':results['distances'][0],
                     'title': dataframe[dataframe.vector_id.isin(results['ids'][0])]['title'],
                     'content': dataframe[dataframe.vector_id.isin(results['ids'][0])]['text'],
                     })
         
-        return df
+        return search_df
     
     # Function to create the desired string from a DataFrame
-    def search_knowledge(self, query, articles, n, clearing_house="na", market="na") -> str:
-        df = self.search_df(
-        collection=self.collection,
+    def query(self, query, max_results, clearing_house="na", market="na") -> str:
+        search_df = self.search_df(
         query=query,
-        max_results=n,
-        dataframe=articles
+        max_results=max_results,
         )
+
         # Initialize an empty string
         result_string = ""
         
         # Iterate over each row in the DataFrame
-        for index, row in df.iterrows():
+        for index, row in search_df.iterrows():
             # Append the title and content to the result string, followed by a newline character
-            result_string += f"{row['title']}\n{row['content']}\n"
+            result_string += f"title:\n{row['title']}\n\ncontent:\n{row['content']}\n"
         
         return result_string.strip()  # Use strip() to remove the last newline character
