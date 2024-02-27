@@ -52,13 +52,14 @@ class SmartAgent:
         # get query
         query = function_args["query"]
         # search ec store
-        search_result = self.ec_store.query(query, 3)
+        search_result = self.ec_store.query(query, 2)
+        print(search_result)
         st.session_state.sources.append({"source": search_result})
-        pre_inst = "Kindly use only the given source of information to answer the user's question:"
-        post_inst = """Tips:\n 1. Please directly quote the specific part of text directly relevant to the user's question and answer. \n
-        2. Thoroughly search the given source of information to answer the question before answering that the information is not found.\n
-        3. If you need more information, you can use can make another query using the search function.\n
-        4. DO NOT MAKE UP OWN ANSWERS, strictly answer from the given source of information"""
+        pre_inst = "Use only the given source of information to answer the user's question:"
+        post_inst = """1. Make the most of the information provided to give a succinct and concise answer to the user \n
+        2. If you need more information, you can use can make another query using the search function.\n
+        3. DO NOT MAKE UP OWN ANSWERS, strictly answer from the given source of information
+        4. Output in neat markdown format"""
         prompt = f"{pre_inst}\n{search_result}\n{post_inst}"
         # send response
         return self._send_response(SEARCH_KNOWLEDGE, prompt)
@@ -107,6 +108,7 @@ class SmartAgent:
         #     st.session_state.chat.send_message(f"{GENERAL_ASSISTANT}")
         # send user query
         response = st.session_state.chat.send_message(f"{user_query}", tools=[search_tool])
+        print(response)
         # append user query to history
         st.session_state.chat_history.append({"role":"human", "content":user_query})
         # get function call
@@ -123,53 +125,12 @@ class SmartAgent:
             # self.chat_history.append({"role":"assistant", "content":function_call})
             # route to appropriate function and get response
             response = self.func_router(response)
+            print(response)
             if not response: break
             function_call = response.candidates[0].content.parts[0].function_call.name # see if there is an additional function call
         # add response to chat history
         st.session_state.chat_history.append({"role":"assistant", "content":response.text})
         return response
-
-
-    # def agent_chat(self, user_query):
-    #     # send general instructions to the agent
-    #     # if "chat" not in st.session_state:
-    #     #     st.session_state.chat.send_message(f"{GENERAL_ASSISTANT}")
-    #     # send user query
-    #     response = st.session_state.chat.send_message(f"{user_query}", tools=[search_tool])
-    #     # append user query to history
-    #     self.chat_history.append({"role":"human", "content":user_query})
-    #     # get function call
-    #     function_call = response.candidates[0].content.parts[0].function_call.name
-        
-    #     # if any function call 
-    #     while function_call:
-    #         # add func call to chat history
-    #         self.chat_history.append({"role":"assistant", "content":function_call})
-    #         # route to appropriate function and get response
-    #         response = self.func_router(response)
-    #         if not response: break
-    #         function_call = response.candidates[0].content.parts[0].function_call.name # see if there is an additional function call
-    #     # add response to chat history
-    #     self.chat_history.append({"role":"assistant", "content":response.text})
-    #     return response
-
-# def response_generator(bot, query):
-#     output = bot.agent_chat(query)
-#     response = output.text
-#     for word in response.split():
-#         yield word + " "
-#         time.sleep(0.05)
-
-# def extract_messages():
-#     chat_message = []
-#     for message in st.session_state.chat.history:
-#         try:
-#             if message.parts[0].text:
-#                 chat_message.append({'role':message.role, 'content':message.parts[0].text})
-#         except AttributeError:
-#             if message.parts[0].function_call.name:
-#                 chat_message.append({'role': message.role, 'content':message.parts[0].function_call.name})
-#     return chat_message
         
 def main():
     st.title("SageBot")

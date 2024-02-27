@@ -5,7 +5,7 @@ model = GenerativeModel("gemini-pro")
 
 search_knowledge_func = FunctionDeclaration(
     name="search_knowledge",
-    description="to answer any question related to trade settlement in euroclear and basic market information",
+    description="to answer any question related to euroclear",
     parameters={
     "type": "object",
     "properties": {
