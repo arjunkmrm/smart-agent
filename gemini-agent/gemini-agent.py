@@ -17,12 +17,12 @@ import copy
 load_dotenv()
 
 # Constants
-SEARCH_KNOWLEDGE = "search_knowledge"
+EUROCLEAR_ASSISTANT = "euroclear_assistant"
 CMU_QUERY = "cmu_query"
 EMAIL_QUERY = "email_query"
 TRADE_QUERY = "trade_query"
 FUNCTION_HANDLERS = {
-    SEARCH_KNOWLEDGE: "handle_ec_knowledge",
+    EUROCLEAR_ASSISTANT: "handle_ec_knowledge",
     CMU_QUERY: "handle_cmu_query",
     EMAIL_QUERY: "handle_email_query",
     TRADE_QUERY: "handle_trade_query",
@@ -34,7 +34,7 @@ class SmartAgent:
         self.chat_history = []
         self.sources = []
 
-    def func_router(self, response):
+    def func_router(self, response): # routes to different functions based on call
         function_call = response.candidates[0].content.parts[0].function_call.name
         handler_method_name = FUNCTION_HANDLERS.get(function_call)
 
@@ -48,6 +48,7 @@ class SmartAgent:
 
     def handle_ec_knowledge(self, response):
         # get function arguments
+        model = GenerativeModel("gemini-pro")
         function_args = response.candidates[0].content.parts[0].function_call.args
         # get query
         query = function_args["query"]
@@ -55,14 +56,21 @@ class SmartAgent:
         search_result = self.ec_store.query(query, 2)
         print(search_result)
         st.session_state.sources.append({"source": search_result})
-        pre_inst = "Use only the given source of information to answer the user's question:"
-        post_inst = """1. Make the most of the information provided to give a succinct and concise answer to the user \n
-        2. If you need more information, you can use can make another query using the search function.\n
+        pre_inst = f"Use only the given source of information to answer the user's question: {query}"
+        post_inst = """\nTips:\n1. Make the most of the information provided to give a detailed, succinct and concise answer to the user \n
+        2. If you need more clarification from the user, please ask\n
         3. DO NOT MAKE UP OWN ANSWERS, strictly answer from the given source of information
         4. Output in neat markdown format"""
         prompt = f"{pre_inst}\n{search_result}\n{post_inst}"
-        # send response
-        return self._send_response(SEARCH_KNOWLEDGE, prompt)
+
+        # Instruct the model to generate content using the Tool that you just created:
+        response = model.generate_content(
+            prompt,
+            generation_config={"temperature": 0}
+        )
+        answer = response.text
+        #return self._send_response(EUROCLEAR_ASSISTANT, prompt)
+        return self._send_response(EUROCLEAR_ASSISTANT, answer)
 
     def handle_cmu_query(self, response):
         function_args = response.candidates[0].content.parts[0].function_call.args
@@ -102,18 +110,41 @@ class SmartAgent:
             tools=[search_tool]
         )
     
-    def get_func(self, user_query):
-        # if "chat" not in st.session_state:
-        #     # send general instructions to the agent
-        #     st.session_state.chat.send_message(f"{GENERAL_ASSISTANT}")
-        # send user query
+    def chat_constructor(self, prompt, function_call, response):
+        messages = []
+        messages.append([
+            Content(role="user", parts=[
+                Part.from_text(prompt),
+            ]),
+            Content(role="function", parts=[
+                Part.from_dict({
+                    "function_call": {
+                        "name": f"{function_call}",
+                    }
+                })
+            ]),
+            Content(role="model", parts=[
+                Part.from_function_response(
+                    name=f"{function_call}",
+                    response={
+                        "content": "api_response",
+                    }
+                )
+            ]),
+            ],
+            tools=[search_tool],
+        )
+        pass
+    
+    def get_func(self, user_query): # get the function agent wants to call
+        # send user message
         response = st.session_state.chat.send_message(f"{user_query}", tools=[search_tool])
         print(response)
         # append user query to history
         st.session_state.chat_history.append({"role":"human", "content":user_query})
         # get function call
         function_call = response.candidates[0].content.parts[0].function_call.name
-        if not function_call:
+        if not function_call: # if not a function call, just append agent response
             st.session_state.chat_history.append({"role":"assistant", "content":response.text})
         return (function_call, response)
     
@@ -121,9 +152,6 @@ class SmartAgent:
         #function_call = self.get_func(user_query)
         # if any function call 
         while function_call:
-            # add func call to chat history
-            # self.chat_history.append({"role":"assistant", "content":function_call})
-            # route to appropriate function and get response
             response = self.func_router(response)
             print(response)
             if not response: break
@@ -170,6 +198,7 @@ def main():
 
         with st.chat_message("assistant"):
             st.markdown(assistant_response)
+    st.write(st.session_state.chat.history)
     #st.write(st.session_state.sources)
 
 if __name__ == "__main__":

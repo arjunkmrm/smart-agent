@@ -4,14 +4,14 @@ from vertexai.preview.generative_models import FunctionDeclaration
 model = GenerativeModel("gemini-pro")
 
 search_knowledge_func = FunctionDeclaration(
-    name="search_knowledge",
-    description="to answer any question related to euroclear",
+    name="euroclear_assistant",
+    description="an assistant who answers your questions about euroclear (ec)",
     parameters={
     "type": "object",
     "properties": {
         "query": {
             "type": "string",
-            "description": "your rephrased search query to retrieve knowledge from a vector database"
+            "description": "user query"
         },
     },
          "required": [
