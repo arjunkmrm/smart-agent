@@ -90,8 +90,9 @@ class VectorEngine:
         :return: A DataFrame with the columns id, file_path, title, text, title_vector, content_vector, vector_id.
         """
         data = []
-
-        file_path = f'data/{self.collection_name}.csv'
+        script_path = os.path.abspath(__file__)
+        script_directory = os.path.dirname(script_path)
+        file_path = f'{script_directory}/data/{self.collection_name}.csv'
 
         if not os.path.exists(file_path): # if csv with collection name doesn't exist
             for idx, filename in enumerate(os.listdir(self.folder_path)):
@@ -121,7 +122,7 @@ class VectorEngine:
 
             articles_df = pd.DataFrame(data)
             articles_df['vector_id'] = articles_df['vector_id'].apply(str)
-            articles_df.to_csv(f"data/{self.collection_name}.csv", index=False)
+            articles_df.to_csv(file_path, index=False)
         else:
             articles_df = pd.read_csv(file_path)
             articles_df['id'] = articles_df['id'].astype(str)
