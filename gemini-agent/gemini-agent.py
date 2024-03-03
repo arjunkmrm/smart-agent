@@ -45,7 +45,9 @@ class SmartAgent:
         
     def push_response(self, function_name, prompt):
         if function_name == EUROCLEAR_ASSISTANT:
-            prompt = prompt + f"\n PRO-TIP: if the answer is not sufficient do not give up. please call the {EUROCLEAR_ASSISTANT} function again, with a modified query"
+            prompt = prompt + f"""\n IMPORTANT NOTE: If the provided document does not contain enough information,
+            please modify the query and search again. """
+            # {EUROCLEAR_ASSISTANT} function again, with a modified query to find the missing information
         response = st.session_state.chat.send_message(
             Part.from_function_response(
                 name=function_name,
@@ -72,7 +74,7 @@ def main():
         st.session_state.chat = model.start_chat(response_validation=False)
         st.session_state.chat.send_message(f"{GENERAL_ASSISTANT}")
         st.session_state.sagebot = SmartAgent() # init agent
-        st.session_state.knowledge_stores = KnowledgeStores(1) # init stores
+        st.session_state.knowledge_stores = KnowledgeStores(k=1) # init stores
         st.session_state.chat_history = [] # chat history for display
     st.session_state.sources = []
 
