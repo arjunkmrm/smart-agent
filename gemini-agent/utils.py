@@ -20,6 +20,7 @@ search_knowledge_func = FunctionDeclaration(
   },
 )
 
-search_tool = generative_models.Tool(
+agent_tools = generative_models.Tool(
   function_declarations=[search_knowledge_func],
 )
+

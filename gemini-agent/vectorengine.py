@@ -128,10 +128,11 @@ class VectorEngine:
         # sop_title_collection = chroma_client.create_collection(name='sop_titles', embedding_function=embedding_function)
 
         # Add the content vectors
-        collection.add(
-            ids=self.articles_df.vector_id.tolist(),
-            embeddings=self.articles_df.content_vector.tolist(),
-        )
+        # testing
+        # collection.add(
+        #     ids=self.articles_df.vector_id.tolist(),
+        #     embeddings=self.articles_df.content_vector.tolist(),
+        # )
         return collection
 
     def search_df(self, query, max_results) -> pd.DataFrame:
