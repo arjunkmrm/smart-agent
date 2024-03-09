@@ -49,7 +49,7 @@ class KnowledgeStores:
         query = function_args["query"]
         # search ec store
         search_result = self.ec_store.query(query, self.k)
-        print(search_result[:15])
+        #print(search_result[:15])
 
         # pre-prompt
         # pre_inst = f"Use only the given source of information to answer the user's question: {query}"
@@ -73,7 +73,7 @@ class KnowledgeStores:
         # model answer
         #answer = response.text # for gemini
         answer = response
-        print(answer)
+        #print(answer)
         return (answer, None)
 
 # create a class for strutured queries like above **************** 

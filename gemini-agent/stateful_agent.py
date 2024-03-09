@@ -32,21 +32,21 @@ EUROCLEAR_ASSISTANT = "euroclear_assistant"
 TRADE_QUERY_ASSISTANT = "trade_query_assistant"
 EMAIL_ASSISTANT = "email_assistant"
 
-FUNCTION_TEXT = {
-    EUROCLEAR_ASSISTANT: "Searching euroclear knowledge",
-    TRADE_QUERY_ASSISTANT: "Searching trades",
-    EMAIL_ASSISTANT: "Drafting email",
-}
-EUROCLEAR_PATH = "docs\\euroclear_md"
-EUROCLEAR_COLLECTION = "ec_sop"
-EMAIL_PATH = ""
-EMAIL_COLLECTION = ""
+# FUNCTION_TEXT = {
+#     EUROCLEAR_ASSISTANT: "Searching euroclear knowledge",
+#     TRADE_QUERY_ASSISTANT: "Searching trades",
+#     EMAIL_ASSISTANT: "Drafting email",
+# }
+# EUROCLEAR_PATH = "docs\\euroclear_md"
+# EUROCLEAR_COLLECTION = "ec_docs"
+# EMAIL_PATH = ""
+# EMAIL_COLLECTION = ""
 
 class SmartAgent:
     def __init__(self, function_dict, agent_tools) -> None:
         # test cleaner abstract for agents 
-        # model = GenerativeModel("gemini-pro") # initialise model
-        # self.chat = model.start_chat(response_validation=False)
+        model = GenerativeModel("gemini-pro") # initialise model
+        self.chat = model.start_chat(response_validation=False)
         self.chat_history = []
         self.sources = []
         self.function_dict = function_dict
@@ -65,7 +65,7 @@ class SmartAgent:
             return (model_response, additional_response)  # dynamic function calling
         else:
             # get better exception handling
-            st.error(f"Unknown function call: {agent_function_call}")
+            #st.error(f"Unknown function call: {agent_function_call}")
             return None
         
     def push_response(self, function_name, prompt):
@@ -77,21 +77,19 @@ class SmartAgent:
             please modify the query and search again. """ # append directly to func response
         elif function_name == TRADE_QUERY_ASSISTANT:
             prompt = prompt + f"""\nNOTE: If there are more than three trades, only three are shown. The other trades have been sent to the user's display directly.""" # append directly
-        # response = self.chat.send_message(...)
-        response = st.session_state.chat.send_message(
+        response = self.chat.send_message(
             Part.from_function_response(
                 name=function_name,
                 response={"content": prompt},
             ),
             tools=[self.agent_tools]
         )
-        print(prompt)
+        #print(prompt)
         return response
     
     def get_func(self, user_query): # get the function which agent wants to call
-        # = self.chat.send_message...
-        response = st.session_state.chat.send_message(f"{user_query}", tools=[self.agent_tools]) # send user message
-        st.session_state.chat_history.append({"role":"human", "content":user_query}) # append user query to history
+        response = self.chat.send_message(f"{user_query}", tools=[self.agent_tools]) # send user message
+        self.chat_history.append({"role":"human", "content":user_query}) # append user query to history
         function_call = response.candidates[0].content.parts[0].function_call.name # get function call
         if not function_call: # if not a function call, just append agent response
             pass

@@ -60,16 +60,11 @@ PORTIONS_COLLECTION = "portions_docs"
 def main():
     st.title("SageBot")
     # itialise sagebot stae on first run
-    if "chat" not in st.session_state:
-        # could technically create a start chat method within smart agent to abstractly link different models
-        # can remove model init
-        model = GenerativeModel("gemini-pro") # initialise model
+    if "sagebot" not in st.session_state:
         # these can be abstracted - import the instantiation initialised directly
         st.session_state.euroclear_store = KnowledgeStores(EUROCLEAR_PATH, EUROCLEAR_COLLECTION, k=3) # init stores
         st.session_state.sop_store = KnowledgeStores(SOP_PATH, SOP_COLLECTION, k=3)
         st.session_state.portions_store = KnowledgeStores(PORTIONS_PATH, PORTIONS_COLLECTION, k=3)
-        st.session_state.chat_history = [] # chat history for display
-        # this can be here?
         st.session_state.function_dict = {
             EUROCLEAR_ASSISTANT: st.session_state.euroclear_store.knowledge_assistant,
             SOP_ASSISTANT: st.session_state.sop_store.knowledge_assistant,
@@ -80,14 +75,14 @@ def main():
             EMAIL_ASSISTANT: email_assistant,
         }
         st.session_state.sagebot = SmartAgent(st.session_state.function_dict, master_tools) # init agent
-        st.session_state.chat = model.start_chat(response_validation=False) # can be removed
+        #st.session_state.chat = model.start_chat(response_validation=False) # can be removed
         # st.session_state.sagebot.chat.send_message(.....)
-        st.session_state.chat.send_message(f"{GENERAL_ASSISTANT}")
+        st.session_state.sagebot.chat_history = []
+        st.session_state.sagebot.chat.send_message(f"{GENERAL_ASSISTANT}")
     st.session_state.sources = []
 
     # deep copy was for testing. display chat history on refresh
-    chat_messages = copy.deepcopy(st.session_state.chat_history)
-    for message in chat_messages:
+    for message in st.session_state.sagebot.chat_history:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
@@ -127,15 +122,15 @@ def main():
             if function_store == TRADE_QUERY_ASSISTANT and additional_output != EMPTY_TABLE:
                 with st.chat_message("assistant"):
                     df = sql_to_df(additional_output)
-                    st.session_state.chat_history.append({"role":"assistant", "content":"(*trade details)"})
+                    st.session_state.sagebot.chat_history.append({"role":"assistant", "content":"(*trade details)"})
                     st.dataframe(df)
             else:
                 with st.chat_message("assistant"):
-                    st.session_state.chat_history.append({"role":"assistant", "content":assistant_response})
+                    st.session_state.sagebot.chat_history.append({"role":"assistant", "content":assistant_response})
                     st.markdown(assistant_response)
         else: # direct response without function call
             with st.chat_message("assistant"):
-                st.session_state.chat_history.append({"role":"assistant", "content":assistant_response})
+                st.session_state.sagebot.chat_history.append({"role":"assistant", "content":assistant_response})
                 st.markdown(assistant_response)
 
 if __name__ == "__main__":

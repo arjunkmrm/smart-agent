@@ -276,15 +276,26 @@ def docstodf(folder_path, collection_name):
     if not os.path.exists(csv_path):
         print("creating csv")
         for idx, filename in enumerate(os.listdir(folder_path)):
-            if filename.endswith((".md", ".docx", ".doc")):  # Check if file ends with any of the document formats
-                file_path = os.path.join(folder_path, filename)
-                # Use textract to read file content
+            file_path = os.path.join(folder_path, filename)
+            content = ""  # Initialize content to empty string
+
+            if filename.endswith((".docx", ".doc")):  # Check if file ends with .docx or .doc
+                # Use textract to read file content for doc and docx files
                 try:
                     content = textract.process(file_path).decode('utf-8')
                 except Exception as e:
                     print(f"Error processing file {filename}: {e}")
                     continue  # Skip this file if there's an error processing it
+            elif filename.endswith(".md"):  # Check if file is a Markdown file
+                # Directly read the content of Markdown files
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as file:
+                        content = file.read()
+                except Exception as e:
+                    print(f"Error reading file {filename}: {e}")
+                    continue  # Skip this file if there's an error reading it
 
+            if content:  # If content is not empty
                 title = os.path.splitext(filename)[0]
 
                 # Append to the data list
@@ -298,6 +309,7 @@ def docstodf(folder_path, collection_name):
 
         # Create a DataFrame and save to CSV
         articles_df = pd.DataFrame(data)
+        articles_df.to_csv(csv_path, index=False)
         articles_df['id'] = articles_df['id'].apply(str)
         articles_df.to_csv(csv_path, index=False)
         print(f"{collection_name}.csv created and saved")
