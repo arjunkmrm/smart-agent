@@ -1,6 +1,6 @@
 # note: for the demo, i could probably send emails to myself and store in a folder to get into df 
 from dotenv import load_dotenv
-from utils import get_function_name
+from utils import get_function_name, get_function_args
 import streamlit as st
 from utils import master_tools
 from utils import sql_to_df
@@ -15,6 +15,7 @@ from vertexai.generative_models import (
     GenerativeModel,
     Part
 )
+from prompts import GENERAL_ASSISTANT
 #import win32com.client as win32
 load_dotenv()
 
@@ -22,6 +23,7 @@ class AgentUno:
     def __init__(self, function_dict, agent_tools) -> None:
         model = GenerativeModel("gemini-pro") # initialise model
         self.chat = model.start_chat(response_validation=False)
+        self.chat.send_message(f"{GENERAL_ASSISTANT}")
         self.chat_history = []
         self.sources = []
         self.function_dict = function_dict
@@ -68,6 +70,9 @@ class AgentUno:
         response = self.get_func(task)
         function = get_function_name(response)
         while function:
+            print(f"calling {function}...")
+            args = get_function_args(response)
+            print(args['query'])
             function_return = self.call_func(response) # call the agent determined function using agent generated args
             response = function_return[0] # function output -> model ->
             additional_output = function_return[1]

@@ -17,6 +17,22 @@ from typing import Tuple
 from utils import SQL_INVALID_RESPONSE
 from utils import EMPTY_TABLE
 from utils import docstodf
+from dotenv import load_dotenv
+load_dotenv()
+# extra
+from openai import OpenAI
+client = OpenAI()
+
+def chat_openai(prompt):
+    completion = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are an assistant who help answer user's question based on given inormation."},
+        {"role": "user", "content": f"{prompt}"}
+    ]
+    )
+
+    return completion.choices[0].message.content
 
 def get_function_args(response):
     function_args = response.candidates[0].content.parts[0].function_call.args
@@ -64,24 +80,30 @@ class KnowledgeStores:
         query = function_args["query"]
         # search ec store
         search_result = self.ec_store.query(query, self.k)
+        print(search_result[:15])
 
         # pre-prompt
-        pre_inst = f"Use only the given source of information to answer the user's question: {query}"
+        # pre_inst = f"Use only the given source of information to answer the user's question: {query}"
+        pre_inst = f"Use the given source of information to answer the user's question: {query}"
         # post-prompt
         post_inst = """\nTips:\n1. Make the most of the information provided to give a detailed, succinct and concise answer to the user \n
         2. If you need more clarification from the user, please ask\n
-        3. DO NOT MAKE UP OWN ANSWERS, strictly answer from the given source of information
-        4. Output in neat markdown format with web links if present in the document"""
+        3. Output in neat markdown format with web links if present in the document"""
+        # 3. DO NOT MAKE UP OWN ANSWERS, strictly answer from the given source of information
+
         # full prompt
         prompt = f"{pre_inst}\n{search_result}\n{post_inst}"
 
         # instruct the model to generate content using the Tool that you just created:
-        response = model.generate_content(
-            prompt,
-            generation_config={"temperature": 0}
-        )
+        # response = model.generate_content(
+        #     prompt,
+        #     generation_config={"temperature": 0}
+        # )
+        response = chat_openai(prompt)
+
         # model answer
-        answer = response.text
+        #answer = response.text # for gemini
+        answer = response
         print(answer)
         return (answer, None)
 

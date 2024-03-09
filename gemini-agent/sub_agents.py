@@ -11,19 +11,19 @@ from vertexai.generative_models import (
 
 # function names
 EUROCLEAR_ASSISTANT = 'euroclear_assistant'
-CMU_ASSISTANT = 'cmu_assistant'
+#CMU_ASSISTANT = 'cmu_assistant'
 SOP_ASSISTANT = 'sop_assistant'
 
 # funtion init
 euroclear_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/gemini-agent/data/ec_sop.csv", "ec_sop") # send args
 # cmu_store = KnowledgeStores()
-# sop_store = KnowledgeStores()
+sop_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/gemini-agent/data/sop_docs.csv", "sop_docs")
 
 # function mapping
 KNOWLEDGE_FUNCTION_DICT = {
             EUROCLEAR_ASSISTANT: euroclear_store.knowledge_assistant,
             # CMU_ASSISTANT: cmu_store.knowledge_assistant,
-            # SOP_ASSISTANT: sop_store.knowledge_assistant,
+            SOP_ASSISTANT: sop_store.knowledge_assistant,
         }
 
 euroclear_assistant_func = FunctionDeclaration(
@@ -77,7 +77,7 @@ sop_assistant_func = FunctionDeclaration(
   },
 )
 
-knowledge_tools = Tool(function_declarations=[euroclear_assistant_func])
+knowledge_tools = Tool(function_declarations=[euroclear_assistant_func, sop_assistant_func])
 knowledge_agent = AgentUno(KNOWLEDGE_FUNCTION_DICT, knowledge_tools)
 
 #  can create as many agents as you want

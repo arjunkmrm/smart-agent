@@ -1,0 +1,328 @@
+id,file_path,title,content
+1,/Users/arjun/Documents/github/smart-agent/docs/sop-docs/acu_sop/downloading_reports.md,downloading_reports,"# Standard Operating Procedure: Downloading Trade Reports
+
+## 1. Purpose
+This document outlines the procedures for downloading trade reports from various sources, including Bloomberg, Euroclear, and Murex systems. These reports are essential for monitoring trading activities, reconciling trades, and ensuring compliance with regulatory requirements.
+
+## 2. Scope
+This SOP applies to all Market Operations team members responsible for retrieving and processing trade reports.
+
+## 3. Prerequisites
+1. Access to Bloomberg Terminal
+2. Login credentials for Euroclear and Murex systems
+3. Familiarity with report generation and download procedures in each system
+
+## 4. Procedure
+
+### 4.1. Downloading Trade Reports from Bloomberg
+1. Log in to the Bloomberg Terminal using your credentials.
+2. Navigate to the ""Trade"" menu and select ""Trade Reports.""
+3. Choose the appropriate report type (e.g., Trade Blotter, Execution Reports, etc.).
+4. Set the desired date range and filtering criteria.
+5. Generate the report and review the data for accuracy.
+6. Export the report in the desired format (e.g., CSV, Excel, PDF).
+7. Save the report to the designated shared drive location: `\\fileserver\TradeReports\Bloomberg`.
+
+### 4.2. Downloading Trade Reports from Euroclear
+1. Log in to the Euroclear system using your credentials.
+2. Navigate to the ""Reports"" section.
+3. Select the appropriate report type (e.g., Settlement Instructions, Transaction Status, etc.).
+4. Set the desired date range and filtering criteria.
+5. Generate the report and review the data for accuracy.
+6. Export the report in the desired format (e.g., CSV, Excel, PDF).
+7. Save the report to the designated shared drive location: `\\fileserver\TradeReports\Euroclear`.
+
+### 4.3. Downloading Trade Reports from Murex
+1. Log in to the Murex system using your credentials.
+2. Navigate to the ""Reports"" module.
+3. Select the appropriate report type (e.g., Trade Capture, Confirmation Reports, etc.).
+4. Set the desired date range and filtering criteria.
+5. Generate the report and review the data for accuracy.
+6. Export the report in the desired format (e.g., CSV, Excel, PDF).
+7. Save the report to the designated shared drive location: `\\fileserver\TradeReports\Murex`.
+
+## 5. Naming Convention
+Follow the standard naming convention for trade reports:
+`[System]_[ReportType]_[YYYYMMDD].ext`
+
+Example: `Bloomberg_TradeBlotter_20230308.csv`
+
+## 6. Frequency
+Trade reports should be downloaded daily, or as required, based on the specific reporting requirements and operational needs.
+
+## 7. Review and Escalation
+1. Review the downloaded reports for completeness and accuracy.
+2. If any issues or discrepancies are identified, escalate them to the Team Lead or the appropriate subject matter expert for resolution.
+
+## 8. Related Documents
+- Trade Reporting Requirements
+- Data Security and Handling Policies
+
+## 9. Review and Update
+This SOP will be reviewed and updated annually by the Team Lead, or as needed, to reflect any changes in systems, procedures, or regulatory requirements."
+2,/Users/arjun/Documents/github/smart-agent/docs/sop-docs/acu_sop/validating_trades.md,validating_trades,"# Standard Operating Procedure: Validating Trade Details
+
+## 1. Purpose
+This document outlines the procedures for validating trade details to ensure accuracy, completeness, and compliance with regulatory requirements. Trade validation is a critical process in the Market Operations team to mitigate risks, prevent errors, and maintain data integrity.
+
+## 2. Scope
+This SOP applies to all Market Operations team members responsible for validating trade details.
+
+## 3. Prerequisites
+1. Access to trade capture systems (e.g., Bloomberg, Murex, etc.)
+2. Access to trade confirmation systems (e.g., Euroclear, SWIFT, etc.)
+3. Knowledge of trade lifecycle and validation rules
+4. Understanding of relevant regulations and compliance requirements
+
+## 4. Procedure
+
+### 4.1. Obtain Trade Details
+1. Retrieve the trade details from the trade capture system(s) for the specified date range.
+2. Ensure that all relevant trade details are available, including but not limited to:
+  - Trade date
+  - Settlement date
+  - Counterparty
+  - Instrument type
+  - Quantity
+  - Price
+  - Currency
+  - Trade ID
+
+### 4.2. Cross-Reference Trade Confirmations
+1. Obtain the corresponding trade confirmations from the confirmation system(s).
+2. Cross-reference the trade details against the confirmations to ensure consistency and accuracy.
+3. Verify that all mandatory fields match between the trade capture system and the confirmation.
+
+### 4.3. Validate Trade Details
+1. Check the trade details against the validation rules and regulatory requirements.
+2. Validate the following aspects, but not limited to:
+  - Pricing and calculation accuracy
+  - Settlement instructions
+  - Counterparty eligibility
+  - Trade restrictions or limits
+  - Regulatory reporting requirements
+
+### 4.4. Escalate Discrepancies
+1. If any discrepancies or issues are identified during the validation process, document them in the Trade Validation Log.
+2. Escalate the discrepancies to the appropriate team or subject matter expert for resolution.
+3. Follow up on the resolution and update the Trade Validation Log accordingly.
+
+### 4.5. Record Validation
+1. Once the trade details have been validated and any discrepancies resolved, record the validation in the Trade Validation Log.
+2. Include the following information:
+  - Trade ID
+  - Validation date
+  - Validator's name
+  - Outcome (Validated or Discrepancy)
+  - Discrepancy details (if applicable)
+  - Resolution details (if applicable)
+
+## 5. Frequency
+Trade validation should be performed on a daily basis, or as per the established trade processing schedule.
+
+## 6. Related Documents
+- Trade Validation Rules
+- Regulatory Compliance Policies
+- Trade Validation Log template
+
+## 7. Review and Update
+This SOP will be reviewed and updated annually by the Team Lead, or as needed, to reflect any changes in systems, procedures, or regulatory requirements."
+3,/Users/arjun/Documents/github/smart-agent/docs/sop-docs/acu_sop/trade_settlement.md,trade_settlement,"# Standard Operating Procedure: Trade Settlement
+
+## 1. Purpose
+This document outlines the procedures for settling trades in a timely and accurate manner. Trade settlement is a critical process in the Market Operations team to ensure the successful transfer of securities and funds between counterparties, mitigate settlement risks, and maintain operational efficiency.
+
+## 2. Scope
+This SOP applies to all Market Operations team members responsible for trade settlement activities.
+
+## 3. Prerequisites
+1. Access to trade capture systems (e.g., Bloomberg, Murex, etc.)
+2. Access to settlement systems (e.g., Euroclear, SWIFT, etc.)
+3. Knowledge of settlement cycles and procedures
+4. Understanding of relevant regulations and compliance requirements
+
+## 4. Procedure
+
+### 4.1. Identify Trades for Settlement
+1. Retrieve the list of trades due for settlement on the current settlement date.
+2. Ensure that all necessary trade details are available, including but not limited to:
+  - Trade date
+  - Settlement date
+  - Counterparty
+  - Instrument type
+  - Quantity
+  - Price
+  - Currency
+  - Trade ID
+
+### 4.2. Prepare Settlement Instructions
+1. Based on the trade details, prepare the settlement instructions for each trade.
+2. Settlement instructions should include:
+  - Counterparty details (e.g., BIC, account details)
+  - Security details (e.g., ISIN, description)
+  - Settlement amount
+  - Settlement date
+  - Settlement instructions (e.g., DVP, FOP)
+
+### 4.3. Initiate Settlement
+1. Log in to the appropriate settlement system(s) (e.g., Euroclear, SWIFT).
+2. Enter the settlement instructions for each trade.
+3. Verify the accuracy of the settlement instructions before submitting.
+4. Submit the settlement instructions to the counterparty.
+
+### 4.4. Monitor Settlement Status
+1. Monitor the settlement status of each trade throughout the settlement cycle.
+2. Identify any failed or pending settlements and investigate the reasons.
+3. Coordinate with the counterparty or relevant parties to resolve any issues and ensure successful settlement.
+
+### 4.5. Record Settlement Details
+1. Once the trade has been successfully settled, record the settlement details in the Trade Settlement Log.
+2. Include the following information:
+  - Trade ID
+  - Settlement date
+  - Settlement system
+  - Settlement status (Settled or Failed)
+  - Settlement reference number
+  - Remarks (if applicable)
+
+## 5. Escalation and Exception Handling
+1. If a trade fails to settle on the intended settlement date, escalate the issue to the Team Lead or the appropriate subject matter expert.
+2. Follow the exception handling procedures to resolve the failed settlement, which may include:
+  - Coordinating with counterparties
+  - Investigating and resolving any discrepancies
+  - Initiating buy-in or sell-out procedures (if applicable)
+  - Reporting and documenting the issue
+
+## 6. Frequency
+Trade settlement activities should be performed on a daily basis, or as per the established settlement cycles.
+
+## 7. Related Documents
+- Settlement Procedures Manual
+- Trade Settlement Log template
+- Exception Handling Procedures
+
+## 8. Review and Update
+This SOP will be reviewed and updated annually by the Team Lead, or as needed, to reflect any changes in systems, procedures, or regulatory requirements."
+4,/Users/arjun/Documents/github/smart-agent/docs/sop-docs/acu_sop/onboarding.md,onboarding,"# Standard Operating Procedure: Onboarding to the Market Operations Team
+
+## 1. Purpose
+This document outlines the process for onboarding new team members to the Market Operations team at Acme Financial Solutions. It provides key information, contacts, and guidelines to ensure a smooth transition and integration into the team.
+
+## 2. Scope
+This SOP applies to all new hires joining the Market Operations team, including full-time employees, contractors, and interns.
+
+## 3. Responsibilities
+- Human Resources (HR) Department: Responsible for facilitating the overall onboarding process, providing necessary documentation, and ensuring compliance with company policies.
+- Team Lead: Responsible for assigning a buddy to the new team member, conducting introductions, and providing team-specific training and resources.
+- Buddy: Responsible for guiding the new team member through the onboarding process, answering questions, and helping them acclimate to the team and its processes.
+
+## 4. Procedure
+
+### 4.1. Pre-Onboarding
+1. The HR department will send the new team member a welcome email with information about their start date, location, and any required documentation.
+2. The Team Lead will be notified of the new hire and will assign a buddy from the existing team members.
+
+### 4.2. First Day
+1. The new team member will report to the HR department for general onboarding and to complete any necessary paperwork.
+2. The Team Lead will introduce the new team member to the Market Operations team during the daily standup meeting.
+3. The assigned buddy will provide the new team member with an overview of the team's responsibilities, processes, and tools used.
+4. The buddy will introduce the new team member to key contacts within the team and other relevant departments.
+
+### 4.3. First Week
+1. The buddy will schedule meetings with subject matter experts to provide in-depth training on specific areas of market operations, such as trade processing, risk management, and regulatory compliance.
+2. The new team member will be given access to relevant systems, applications, and documentation.
+3. The Team Lead will schedule a one-on-one meeting with the new team member to discuss their roles, responsibilities, and performance expectations.
+
+### 4.4. Ongoing Support
+1. The buddy will be available to answer questions and provide guidance to the new team member for the first month.
+2. The Team Lead will conduct regular check-ins with the new team member to ensure a smooth transition and address any concerns or training needs.
+
+## 5. Key Contacts
+- Team Lead: John Doe (john.doe@acmefinancial.com)
+- Human Resources Manager: Jane Smith (jane.smith@acmefinancial.com)
+- IT Support: itsupport@acmefinancial.com
+
+## 6. Related Documents
+- Employee Handbook
+- Market Operations Policies and Procedures Manual
+- Information Security Policies
+
+## 7. Review and Update
+This SOP will be reviewed and updated annually by the Team Lead, or as needed, to reflect any changes in processes or personnel."
+5,/Users/arjun/Documents/github/smart-agent/docs/sop-docs/acu_sop/handling_cibm_trades.md,handling_cibm_trades,"# Standard Operating Procedure: Handling CIBM Trades
+
+## 1. Purpose
+This document outlines the procedures for handling trades executed on the China Interbank Bond Market (CIBM). The CIBM is the over-the-counter (OTC) market for trading fixed-income securities in China. This SOP ensures that CIBM trades are processed accurately and in compliance with relevant regulations and market practices.
+
+## 2. Scope
+This SOP applies to all Market Operations team members responsible for processing CIBM trades.
+
+## 3. Prerequisites
+1. Access to trade capture systems (e.g., Bloomberg, Murex, etc.)
+2. Access to CIBM settlement systems (e.g., CCDC, SHCH)
+3. Knowledge of CIBM trade lifecycles and procedures
+4. Understanding of relevant regulations and compliance requirements
+
+## 4. Procedure
+
+### 4.1. Identify CIBM Trades
+1. Retrieve the list of trades executed on the CIBM for the specified date range.
+2. Ensure that all necessary trade details are available, including but not limited to:
+  - Trade date
+  - Settlement date
+  - Counterparty
+  - Instrument type (e.g., government bonds, policy bank bonds, etc.)
+  - Quantity
+  - Price
+  - Currency
+  - Trade ID
+
+### 4.2. Validate Trade Details
+1. Cross-reference the trade details against the counterparty confirmations or trade capture system records.
+2. Verify the accuracy of the trade details, including pricing, settlement instructions, and compliance with CIBM regulations.
+3. Escalate any discrepancies or issues to the appropriate team or subject matter expert for resolution.
+
+### 4.3. Prepare Settlement Instructions
+1. Based on the validated trade details, prepare the settlement instructions for each CIBM trade.
+2. Settlement instructions should include:
+  - Counterparty details (e.g., CIBM participant code)
+  - Security details (e.g., ISIN, bond code)
+  - Settlement amount
+  - Settlement date
+  - Settlement instructions (e.g., DVP, FOP)
+
+### 4.4. Initiate Settlement
+1. Log in to the appropriate CIBM settlement system(s) (e.g., CCDC, SHCH).
+2. Enter the settlement instructions for each CIBM trade.
+3. Verify the accuracy of the settlement instructions before submitting.
+4. Submit the settlement instructions to the counterparty or settlement system.
+
+### 4.5. Monitor Settlement Status
+1. Monitor the settlement status of each CIBM trade throughout the settlement cycle.
+2. Identify any failed or pending settlements and investigate the reasons.
+3. Coordinate with the counterparty or relevant parties to resolve any issues and ensure successful settlement.
+
+### 4.6. Record Settlement Details
+1. Once the CIBM trade has been successfully settled, record the settlement details in the CIBM Trade Settlement Log.
+2. Include the following information:
+  - Trade ID
+  - Settlement date
+  - Settlement system
+  - Settlement status (Settled or Failed)
+  - Settlement reference number
+  - Remarks (if applicable)
+
+## 5. Reporting and Compliance
+1. Ensure that all CIBM trades are reported to the appropriate regulatory authorities, as per the CIBM reporting requirements.
+2. Maintain accurate records and documentation for audit purposes and regulatory compliance.
+
+## 6. Frequency
+CIBM trade processing activities should be performed on a daily basis, or as per the established settlement cycles and reporting requirements.
+
+## 7. Related Documents
+- CIBM Regulations and Guidelines
+- CIBM Trade Settlement Log template
+- CIBM Reporting Requirements
+
+## 8. Review and Update
+This SOP will be reviewed and updated annually by the Team Lead, or as needed, to reflect any changes in systems, procedures, regulatory requirements, or market practices related to the CIBM."

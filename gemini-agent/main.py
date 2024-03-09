@@ -7,18 +7,18 @@ from prompts import GENERAL_ASSISTANT
 from agent_functions import trade_query_assistant, email_assistant
 import copy
 from agent_functions import KnowledgeStores
-# from ada_genai.vertexai import (
-#     GenerativeModel,
-#     Part
-# )
 from vertexai.generative_models import (
     GenerativeModel,
     Part
 )
 from utils import EMPTY_TABLE
-#import win32com.client as win32
 from smart_agent import SmartAgent
 load_dotenv()
+#import win32com.client as win32
+# from ada_genai.vertexai import (
+#     GenerativeModel,
+#     Part
+# )
 
 # Constants
 EUROCLEAR_ASSISTANT = "euroclear_assistant"
