@@ -1,6 +1,8 @@
 # ignore all .env files
 *.env
-# ignore todos
+# ignore llmnv
+/Users/arjun/Documents/github/smart-agent/llmnv
+#ignore others
 /Users/arjun/Documents/github/smart-agent/todos.txt
 /Users/arjun/Documents/github/smart-agent/notebooks
 /Users/arjun/Documents/github/smart-agent/utilities
