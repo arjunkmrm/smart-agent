@@ -1,12 +1,13 @@
 # note: for the demo, i could probably send emails to myself and store in a folder to get into df 
+# master agent for use with streamlit
 from dotenv import load_dotenv
 import streamlit as st
 from utils import master_tools
 from utils import sql_to_df
 from prompts import GENERAL_ASSISTANT
-from agent_functions import trade_query_assistant, email_assistant
+from agent_tools import trade_query_assistant, email_assistant
 import copy
-from agent_functions import KnowledgeStores
+from agent_tools import KnowledgeStores
 # from ada_genai.vertexai import (
 #     GenerativeModel,
 #     Part

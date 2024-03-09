@@ -1,6 +1,6 @@
 from agent_uno import AgentUno
 from utils import knowledge_tools
-from agent_functions import KnowledgeStores
+from agent_tools import KnowledgeStores
 from vertexai.generative_models import (
     Content,
     FunctionDeclaration,
@@ -8,78 +8,26 @@ from vertexai.generative_models import (
     Part,
     Tool,
 )
+from tool_definitions import euroclear_assistant_func, sop_assistant_func, portions_assistant_func
 
+# knowledge sub-agent
 # function names
 EUROCLEAR_ASSISTANT = 'euroclear_assistant'
-#CMU_ASSISTANT = 'cmu_assistant'
+PPORTIONS_ASSISTANT = 'portions_assistant'
 SOP_ASSISTANT = 'sop_assistant'
 
 # funtion init
-euroclear_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/gemini-agent/data/ec_sop.csv", "ec_sop") # send args
-# cmu_store = KnowledgeStores()
-sop_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/gemini-agent/data/sop_docs.csv", "sop_docs")
+euroclear_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear", "ec_sop") # euroclear stuff
+portions_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/portions_sop", "portions_sop") # magical portions
+sop_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear", "sop_docs") # acu sop docs
 
 # function mapping
 KNOWLEDGE_FUNCTION_DICT = {
             EUROCLEAR_ASSISTANT: euroclear_store.knowledge_assistant,
-            # CMU_ASSISTANT: cmu_store.knowledge_assistant,
+            PPORTIONS_ASSISTANT: portions_store.knowledge_assistant,
             SOP_ASSISTANT: sop_store.knowledge_assistant,
         }
 
-euroclear_assistant_func = FunctionDeclaration(
-    name="euroclear_assistant",
-    description="an assistant who answers your questions about euroclear (ec)",
-    parameters={
-    "type": "object",
-    "properties": {
-        "query": {
-            "type": "string",
-            "description": "user query"
-        },
-    },
-         "required": [
-            "query"
-      ]
-  },
-)
-
-cmu_assistant_func = FunctionDeclaration(
-    name="cmu_assistant",
-    description="an assistant who answers your questions about the central money market unit (cmu)", # can add more
-    parameters={
-    "type": "object",
-    "properties": {
-        "query": {
-            "type": "string",
-            "description": "user query"
-        },
-    },
-         "required": [
-            "query"
-      ]
-  },
-)
-
-sop_assistant_func = FunctionDeclaration(
-    name="sop_assistant",
-    description="an assistant who answers your questions about the standard operating procedures of the bonds team", # can add more
-    parameters={
-    "type": "object",
-    "properties": {
-        "query": {
-            "type": "string",
-            "description": "user query"
-        },
-    },
-         "required": [
-            "query"
-      ]
-  },
-)
-
-knowledge_tools = Tool(function_declarations=[euroclear_assistant_func, sop_assistant_func])
+knowledge_tools = Tool(function_declarations=[euroclear_assistant_func, sop_assistant_func, portions_assistant_func])
 knowledge_agent = AgentUno(KNOWLEDGE_FUNCTION_DICT, knowledge_tools)
-
-#  can create as many agents as you want
-
 # can now map search knowledge in func dict to knowledge_agent.execute_task -> chooses from multiple knowledge bases to find answer
