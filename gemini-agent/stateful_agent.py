@@ -44,6 +44,9 @@ EMAIL_COLLECTION = ""
 
 class SmartAgent:
     def __init__(self, function_dict, agent_tools) -> None:
+        # test cleaner abstract for agents 
+        # model = GenerativeModel("gemini-pro") # initialise model
+        # self.chat = model.start_chat(response_validation=False)
         self.chat_history = []
         self.sources = []
         self.function_dict = function_dict
@@ -74,6 +77,7 @@ class SmartAgent:
             please modify the query and search again. """ # append directly to func response
         elif function_name == TRADE_QUERY_ASSISTANT:
             prompt = prompt + f"""\nNOTE: If there are more than three trades, only three are shown. The other trades have been sent to the user's display directly.""" # append directly
+        # response = self.chat.send_message(...)
         response = st.session_state.chat.send_message(
             Part.from_function_response(
                 name=function_name,
@@ -85,6 +89,7 @@ class SmartAgent:
         return response
     
     def get_func(self, user_query): # get the function which agent wants to call
+        # = self.chat.send_message...
         response = st.session_state.chat.send_message(f"{user_query}", tools=[self.agent_tools]) # send user message
         st.session_state.chat_history.append({"role":"human", "content":user_query}) # append user query to history
         function_call = response.candidates[0].content.parts[0].function_call.name # get function call
