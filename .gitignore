@@ -3,7 +3,5 @@
 # ignore llmnv
 llmnv
 #ignore others
-/Users/arjun/Documents/github/smart-agent/todos.txt
-/Users/arjun/Documents/github/smart-agent/notebooks
-/Users/arjun/Documents/github/smart-agent/utilities
-/Users/arjun/Documents/github/smart-agent/llmnv
+todos.txt
+smart-agent/notebooks
