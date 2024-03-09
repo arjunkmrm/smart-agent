@@ -2,8 +2,11 @@
 # add func router here also?
 import sqlite3
 import pandas as pd
-import win32com.client as win32
-from ada_genai.vertexai import (
+# import win32com.client as win32
+# from ada_genai.vertexai import (
+#     GenerativeModel,
+# )
+from vertexai.generative_models import (
     GenerativeModel,
 )
 from search_engine import BM25
@@ -19,7 +22,8 @@ def get_function_args(response):
     function_args = response.candidates[0].content.parts[0].function_call.args
     return function_args
 
-EUROCLEAR_CSV_PATH = "C:\\Users\\arjunkumarm\\OneDrive - DBS Bank Ltd\\Documents\\Fixed-Income-Products\\llm-experiments\\gemini-agent\\data\\ec_sop.csv"
+#EUROCLEAR_CSV_PATH = "C:\\Users\\arjunkumarm\\OneDrive - DBS Bank Ltd\\Documents\\Fixed-Income-Products\\llm-experiments\\gemini-agent\\data\\ec_sop.csv"
+EUROCLEAR_CSV_PATH = "/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear"
 # Constants
 EUROCLEAR_ASSISTANT = "euroclear_assistant"
 TRADE_QUERY = "trade_query"
@@ -119,17 +123,17 @@ def email_assistant(response):
     body = function_args['body']
     to_recipients = function_args['to_recipients']
 
-    outlook = win32.Dispatch('outlook.application')
-    mail = outlook.CreateItem(0)  # 0 is the code for a mail item
-    subject, body, to_recipients
-    # Set the mail content
-    mail.Subject = subject
-    mail.Body = body
-    mail.To = to_recipients  # Recipient emails separated by ";"
+    # outlook = win32.Dispatch('outlook.application')
+    # mail = outlook.CreateItem(0)  # 0 is the code for a mail item
+    # subject, body, to_recipients
+    # # Set the mail content
+    # mail.Subject = subject
+    # mail.Body = body
+    # mail.To = to_recipients  # Recipient emails separated by ";"
     #mail.CC = cc_recipients  # CC emails separated by ";"
     
     # Save the email in the drafts folder
-    mail.Save()
+    # mail.Save()
     return("Email created in drafts.", None)
 
 from datetime import datetime

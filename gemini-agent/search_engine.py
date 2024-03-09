@@ -9,7 +9,8 @@ import os
 import ast
 import chromadb
 from ast import literal_eval
-from ada_genai.vertexai import TextEmbeddingModel
+# from ada_genai.vertexai import TextEmbeddingModel
+from vertexai.language_models import TextEmbeddingModel
 from chromadb import Documents, EmbeddingFunction, Embeddings
 import numpy as np
 # from ada_genai.vertexai import GenerativeModel
@@ -24,7 +25,7 @@ from utils import levenshtein_distance, docstodf, generate_vertex_embedding, df_
 import numpy as np
 import re
 from collections import Counter
-from vertexai import GenerativeModel
+from vertexai.generative_models import GenerativeModel
 
 # custom vertex ai embedding function to pass to chroma
 class VertexEmbeddingFunction(EmbeddingFunction[Documents]):

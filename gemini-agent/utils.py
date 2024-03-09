@@ -6,14 +6,14 @@
 #     Tool,
 # )
 # from ada_genai.vertexai import TextEmbeddingModel
-from vertexai import (
+from vertexai.generative_models import (
     Content,
     FunctionDeclaration,
     GenerativeModel,
     Part,
     Tool,
 )
-from vertexai import TextEmbeddingModel
+from vertexai.language_models import TextEmbeddingModel
 import re
 import sqlite3
 import pandas as pd
@@ -253,6 +253,13 @@ def get_function_name(response) -> str:
     """
     function_name = response.candidates[0].content.parts[0].function_call.name
     return function_name
+
+def get_function_args(response) -> str:
+    """
+    simple functon to get function name from gemini response
+    """
+    function_args = response.candidates[0].content.parts[0].function_call.args
+    return function_args
 
 
 # for fuzzy search

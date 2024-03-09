@@ -1,9 +1,9 @@
 # note: for the demo, i could probably send emails to myself and store in a folder to get into df 
 from dotenv import load_dotenv
+from utils import get_function_name
 import streamlit as st
 from utils import master_tools
 from utils import sql_to_df
-from prompts import GENERAL_ASSISTANT
 from agent_functions import trade_query_assistant, email_assistant
 import copy
 from agent_functions import KnowledgeStores
@@ -15,34 +15,13 @@ from vertexai.generative_models import (
     GenerativeModel,
     Part
 )
-from utils import EMPTY_TABLE
 #import win32com.client as win32
 load_dotenv()
 
-def get_function_name(response) -> str:
-    """
-    simple functon to get function name from gemini response
-    """
-    function_name = response.candidates[0].content.parts[0].function_call.name
-    return function_name
-
-# Constants
-EUROCLEAR_ASSISTANT = "euroclear_assistant"
-TRADE_QUERY_ASSISTANT = "trade_query_assistant"
-EMAIL_ASSISTANT = "email_assistant"
-
-FUNCTION_TEXT = {
-    EUROCLEAR_ASSISTANT: "Searching euroclear knowledge",
-    TRADE_QUERY_ASSISTANT: "Searching trades",
-    EMAIL_ASSISTANT: "Drafting email",
-}
-EUROCLEAR_PATH = "docs\\euroclear_md"
-EUROCLEAR_COLLECTION = "ec_sop"
-EMAIL_PATH = ""
-EMAIL_COLLECTION = ""
-
-class SmartAgent:
+class AgentUno:
     def __init__(self, function_dict, agent_tools) -> None:
+        model = GenerativeModel("gemini-pro") # initialise model
+        self.chat = model.start_chat(response_validation=False)
         self.chat_history = []
         self.sources = []
         self.function_dict = function_dict
@@ -60,31 +39,26 @@ class SmartAgent:
             return (model_response, additional_response)  # dynamic function calling
         else:
             # get better exception handling
-            st.error(f"Unknown function call: {agent_function_call}")
+            #st.error(f"Unknown function call: {agent_function_call}")
             return None
         
     def push_response(self, function_name, prompt):
         # could technically append prompt - "whenever you need to use tools, please call the action_planner first to get a plan for how to execute the task"
         # or i send the response to action planner util, whose response is appended 
         # specific trade action could be a function in itself
-        if function_name == EUROCLEAR_ASSISTANT:
-            prompt = prompt + f"""\n Note to sagebot assistant: if the provided answer does not contain enough information,
-            please modify the query and search again. """ # append directly to func response
-        elif function_name == TRADE_QUERY_ASSISTANT:
-            prompt = prompt + f"""\nNOTE: If there are more than three trades, only three are shown. The other trades have been sent to the user's display directly.""" # append directly
-        response = st.session_state.chat.send_message(
+        response = self.chat.send_message(
             Part.from_function_response(
                 name=function_name,
                 response={"content": prompt},
             ),
             tools=[self.agent_tools]
         )
-        print(prompt)
+        #print(prompt)
         return response
     
     def get_func(self, user_query): # get the function which agent wants to call
-        response = st.session_state.chat.send_message(f"{user_query}", tools=[self.agent_tools]) # send user message
-        st.session_state.chat_history.append({"role":"human", "content":user_query}) # append user query to history
+        response = self.chat.send_message(f"{user_query}", tools=[self.agent_tools]) # send user message
+        self.chat_history.append({"role":"human", "content":user_query}) # append user query to history
         function_call = response.candidates[0].content.parts[0].function_call.name # get function call
         if not function_call: # if not a function call, just append agent response
             pass
@@ -94,7 +68,7 @@ class SmartAgent:
         response = self.get_func(task)
         function = get_function_name(response)
         while function:
-            function_return = self.call_func(response, self.function_dict) # call the agent determined function using agent generated args
+            function_return = self.call_func(response) # call the agent determined function using agent generated args
             response = function_return[0] # function output -> model ->
             additional_output = function_return[1]
             function = get_function_name(response)

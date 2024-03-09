@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import streamlit as st
 from utils import master_tools
 from utils import sql_to_df
-from utils import get_function_name
+from utils import get_function_name, get_function_args
 from prompts import GENERAL_ASSISTANT
 from agent_functions import trade_query_assistant, email_assistant
 import copy
@@ -11,12 +11,12 @@ from agent_functions import KnowledgeStores
 #     GenerativeModel,
 #     Part
 # )
-from vertexai import (
+from vertexai.generative_models import (
     GenerativeModel,
     Part
 )
 from utils import EMPTY_TABLE
-import win32com.client as win32
+#import win32com.client as win32
 from smart_agent import SmartAgent
 load_dotenv()
 
@@ -30,7 +30,7 @@ FUNCTION_TEXT = {
     TRADE_QUERY_ASSISTANT: "Searching trades",
     EMAIL_ASSISTANT: "Drafting email",
 }
-EUROCLEAR_PATH = "docs\\euroclear_md"
+EUROCLEAR_PATH = "/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear"
 EUROCLEAR_COLLECTION = "ec_sop"
 EMAIL_PATH = ""
 EMAIL_COLLECTION = ""
@@ -40,11 +40,11 @@ def main():
     st.title("SageBot")
 
     # dict mapping function names to functions
-    FUNCTION_DICT = {
-        EUROCLEAR_ASSISTANT: st.session_state.euroclear_store.knowledge_assistant,
-        TRADE_QUERY_ASSISTANT: trade_query_assistant,
-        #EMAIL_ASSISTANT: st.session_state.email_store.knowledge_assistant
-    }
+    # FUNCTION_DICT = {
+    #     EUROCLEAR_ASSISTANT: st.session_state.euroclear_store.knowledge_assistant,
+    #     TRADE_QUERY_ASSISTANT: trade_query_assistant,
+    #     #EMAIL_ASSISTANT: st.session_state.email_store.knowledge_assistant
+    # }
     
     # itialise sagebot stae on first run
     if "chat" not in st.session_state:
@@ -52,11 +52,16 @@ def main():
         model = GenerativeModel("gemini-pro") # initialise model
         st.session_state.chat = model.start_chat(response_validation=False)
         st.session_state.chat.send_message(f"{GENERAL_ASSISTANT}")
-        st.session_state.sagebot = SmartAgent(FUNCTION_DICT, master_tools) # init agent
         st.session_state.euroclear_store = KnowledgeStores(EUROCLEAR_PATH, EUROCLEAR_COLLECTION, k=3) # init stores
         # st.session_state.email_store = KnowledgeStores(EMAIL_PATH, EMAIL_COLLECTION, k=3) # replace with emails
         # add other knowledge paths but link to fnc dict
         st.session_state.chat_history = [] # chat history for display
+        st.session_state.function_dict = {
+            EUROCLEAR_ASSISTANT: st.session_state.euroclear_store.knowledge_assistant,
+            TRADE_QUERY_ASSISTANT: trade_query_assistant,
+            #EMAIL_ASSISTANT: st.session_state.email_store.knowledge_assistant
+        }
+        st.session_state.sagebot = SmartAgent(st.session_state.function_dict, master_tools) # init agent
     st.session_state.sources = []
 
     # deep copy was for testing. display chat history on refresh
@@ -78,7 +83,7 @@ def main():
         while function: # loop for multiple function calling
             # get function args to display (for users to get what's happening under the hood)
             values = [] # to store function args for display
-            function_args = response.candidates[0].content.parts[0].function_call.args
+            function_args = get_function_args(response)
             values = []
             for arg in function_args:
                 values.append(function_args[arg])
@@ -86,7 +91,7 @@ def main():
 
             # function execution happens here
             with st.spinner(f'{FUNCTION_TEXT.get(function)}: {query_string}'): # get function queries
-                function_return = st.session_state.sagebot.call_func(response, FUNCTION_DICT) # call the agent determined function using agent generated args
+                function_return = st.session_state.sagebot.call_func(response) # call the agent determined function using agent generated args
                 response = function_return[0] # function output -> model ->
                 additional_output = function_return[1] # additional function response to return optional objects
                 if not response: break
