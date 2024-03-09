@@ -9,50 +9,19 @@ import pandas as pd
 from vertexai.generative_models import (
     GenerativeModel,
 )
+from datetime import datetime
+import pytz
 from search_engine import BM25
 from prompts import GENERATE_SQL_PROMPT
-from utils import get_sql_query
+from utils import get_sql_query, get_function_args
 from utils import verify_sql
 from typing import Tuple
 from utils import SQL_INVALID_RESPONSE
 from utils import EMPTY_TABLE
-from utils import docstodf
+from utils import docstodf, chat_openai
 from dotenv import load_dotenv
 load_dotenv()
 # extra
-from openai import OpenAI
-client = OpenAI()
-
-def chat_openai(prompt):
-    completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content": "You are an assistant who help answer user's question based on given inormation."},
-        {"role": "user", "content": f"{prompt}"}
-    ]
-    )
-
-    return completion.choices[0].message.content
-
-def get_function_args(response):
-    function_args = response.candidates[0].content.parts[0].function_call.args
-    return function_args
-
-#EUROCLEAR_CSV_PATH = "C:\\Users\\arjunkumarm\\OneDrive - DBS Bank Ltd\\Documents\\Fixed-Income-Products\\llm-experiments\\gemini-agent\\data\\ec_sop.csv"
-EUROCLEAR_CSV_PATH = "/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear"
-# Constants
-EUROCLEAR_ASSISTANT = "euroclear_assistant"
-TRADE_QUERY = "trade_query"
-# Function handlers dict
-FUNCTION_HANDLERS = {
-    EUROCLEAR_ASSISTANT: "handle_ec_knowledge",
-    TRADE_QUERY: "trade_query_assistant",
-}
-# Function texts
-FUNCTION_TEXT = {
-    EUROCLEAR_ASSISTANT: "Searching euroclear knowledge",
-    TRADE_QUERY: "Searching bond trades",
-}
 
 # for each function - return two outs - one direct string and another optional out?
 # functions to get function call from model and return answer
@@ -158,33 +127,38 @@ def email_assistant(response):
     # mail.Save()
     return("Email created in drafts.", None)
 
-from datetime import datetime
-import pytz
 
 # convert times to sgt
-def convert_to_sgt(market, time_str):
+def sgt_assistant(response):
+    function_args = get_function_args(response)
     # Define the market time zones and Singapore time zone
+    time = function_args["time"]
+    market = function_args["market"]
     market_timezones = {
         'NYSE': 'US/Eastern',  # Adjusts for EST/EDT automatically
         'LSE': 'Europe/London',  # Adjusts for GMT/BST automatically
         'TSE': 'Asia/Tokyo',
         'HKEX': 'Asia/Hong_Kong',
+        'CEST': 'Europe/Berlin',
     }
     singapore_timezone = pytz.timezone('Asia/Singapore')
     
-    # Parse the input time
-    input_time = datetime.strptime(time_str, '%Y-%m-%d %H:%M')
+    # Use the current date as a placeholder
+    today = datetime.now().date()
+    datetime_str = f"{today} {time}"  # Combine current date with the input time
+
+    # Parse the combined date and time
+    input_datetime = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M')
     
     # Convert to the market's timezone
     market_timezone = pytz.timezone(market_timezones[market])
-    market_time = market_timezone.localize(input_time)
+    market_datetime = market_timezone.localize(input_datetime)
     
     # Convert to Singapore time
-    sg_time = market_time.astimezone(singapore_timezone)
-    time_out = sg_time.strftime('%Y-%m-%d %H:%M')
-
+    sg_datetime = market_datetime.astimezone(singapore_timezone)
+    time_out = sg_datetime.strftime('%H:%M')
+    print(f"time converted: {time_out}")
     return (time_out, None)
-
 
 def action_planner(response):
     """

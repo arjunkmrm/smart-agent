@@ -20,13 +20,50 @@ import pandas as pd
 import os
 import ast
 from stop_words import STOP_WORDS
+from dotenv import load_dotenv
+import textract
+load_dotenv()
 from prompts import GENERATE_SQL_PROMPT
 SQL_INVALID_RESPONSE = "sql_invalid"
 EMPTY_TABLE = "empty_table"
 
-search_knowledge_func = FunctionDeclaration(
+euroclear_assistant_func = FunctionDeclaration(
     name="euroclear_assistant",
     description="an assistant who answers your questions about euroclear (ec)",
+    parameters={
+    "type": "object",
+    "properties": {
+        "query": {
+            "type": "string",
+            "description": "user query"
+        },
+    },
+         "required": [
+            "query"
+      ]
+  },
+)
+
+sop_assistant_func = FunctionDeclaration(
+    name="sop_assistant",
+    description="an assistant who answers your questions about standard operating procedures (sops)",
+    parameters={
+    "type": "object",
+    "properties": {
+        "query": {
+            "type": "string",
+            "description": "user query"
+        },
+    },
+         "required": [
+            "query"
+      ]
+  },
+)
+
+portions_assistant_func = FunctionDeclaration(
+    name="portions_assistant",
+    description="an assistant who answers your questions about making magical portions",
     parameters={
     "type": "object",
     "properties": {
@@ -58,7 +95,7 @@ trade_query_func = FunctionDeclaration(
   },
 )
 
-email_draft_func = FunctionDeclaration(
+draft_email_func = FunctionDeclaration(
     name="email_assistant",
     description="an assistant who helps you draft emails", # can add more
     parameters={
@@ -85,15 +122,51 @@ email_draft_func = FunctionDeclaration(
   },
 )
 
+convert_sgt_func = FunctionDeclaration(
+    name="sgt_assistant",
+    description="an assistant to help you convert time from other market time zones to sgt", # can add more
+    parameters={
+    "type": "object",
+    "properties": {
+        "market": {
+            "type": "string",
+            "description": "market code. Note for euroclear it is CEST e.g. CEST, NYSE, HSE"
+        },
+        "time": {
+            "type": "string",
+            "description": "the time that has to be converted in the format: %H:%M"
+        },
+    },
+         "required": [
+            "market",
+            "time",
+      ]
+  },
+)
+
 # add trade query to agent tools
 # clean up model response before passing, maybe simple regex to very sql-ness, if not regen?
 master_tools = Tool(
-  function_declarations=[search_knowledge_func, trade_query_func, email_draft_func],
+  function_declarations=[euroclear_assistant_func, sop_assistant_func, portions_assistant_func, trade_query_func, draft_email_func, convert_sgt_func],
 )
 
 knowledge_tools = Tool( 
-    function_declarations=[search_knowledge_func],
+    function_declarations=[euroclear_assistant_func],
 )
+
+from openai import OpenAI
+client = OpenAI()
+
+def chat_openai(prompt):
+    completion = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content": "You are an assistant who help answer user's question based on given inormation."},
+        {"role": "user", "content": f"{prompt}"}
+    ]
+    )
+
+    return completion.choices[0].message.content
 
 def df_to_str(search_df):
     result_string = ""
@@ -189,48 +262,56 @@ def tokenise(text_list):
 
 
 def docstodf(folder_path, collection_name):
-    """ takes markdown (.md) files in a given folder path and creates a dataframe with columns - file_path, content, title (from file name) """
+    """
+    Takes markdown (.md) and Word documents (.docx, .doc) in a given folder path
+    and creates a dataframe with columns - file_path, content, title (from file name).
+    Note: if csv file already exists in path with collection name, that file is used instead.
+    """
     data = []
-    script_path = os.path.abspath(__file__)
+    script_path = os.path.abspath(__file__)  # Make sure this script is part of a file for __file__ to work
     script_directory = os.path.dirname(script_path)
     csv_path = os.path.join(script_directory, 'data', f'{collection_name}.csv')
     print(csv_path)
 
-    # Check if the CSV file exists
     if not os.path.exists(csv_path):
         print("creating csv")
-        # add word document reading < ----------------------------------------------------
         for idx, filename in enumerate(os.listdir(folder_path)):
-            if filename.endswith(".md"):
+            if filename.endswith((".md", ".docx", ".doc")):  # Check if file ends with any of the document formats
                 file_path = os.path.join(folder_path, filename)
-                # Properly using 'with' to open files ensures they are closed correctly
-                with open(file_path, 'r', encoding='utf-8') as file:
-                    content = file.read()
-                    title = os.path.splitext(filename)[0]
+                # Use textract to read file content
+                try:
+                    content = textract.process(file_path).decode('utf-8')
+                except Exception as e:
+                    print(f"Error processing file {filename}: {e}")
+                    continue  # Skip this file if there's an error processing it
 
-                    # Append to the data list
-                    data.append({
-                        "id": idx + 1,
-                        "file_path": file_path,
-                        "title": title,
-                        "content": content,
-                        #"vector_id": idx  
-                    })
+                title = os.path.splitext(filename)[0]
+
+                # Append to the data list
+                data.append({
+                    "id": idx + 1,
+                    "file_path": file_path,
+                    "title": title,
+                    "content": content,
+                    # "vector_id": idx  
+                })
 
         # Create a DataFrame and save to CSV
         articles_df = pd.DataFrame(data)
         articles_df['id'] = articles_df['id'].apply(str)
         articles_df.to_csv(csv_path, index=False)
+        print(f"{collection_name}.csv created and saved")
     else:
-        print("csv present")
+        print(f"{collection_name}.csv already present")
         # Load DataFrame from CSV
         articles_df = pd.read_csv(csv_path)
         articles_df['id'] = articles_df['id'].astype(str)
-        # articles_df['vector_id'] = articles_df['vector_id'].apply(str)
-        if 'content_vector' in articles_df.columns:
-            articles_df['content_vector'] = articles_df['content_vector'].apply(ast.literal_eval)
+        # Optional processing if 'content_vector' exists
+        # if 'content_vector' in articles_df.columns:
+        #     articles_df['content_vector'] = articles_df['content_vector'].apply(ast.literal_eval)
 
     return articles_df
+
 
 def sql_to_df(sql_query, db_name="C:\\Users\\arjunkumarm\\OneDrive - DBS Bank Ltd\\Documents\\Fixed-Income-Products\\llm-experiments\\gemini-agent\\data\\trade_report.db"):
     # i could also just get the sql query and then pass it back, to convert to df and showing later in the chat directly

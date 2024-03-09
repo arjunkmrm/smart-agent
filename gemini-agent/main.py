@@ -4,7 +4,7 @@ from utils import master_tools
 from utils import sql_to_df
 from utils import get_function_name, get_function_args
 from prompts import GENERAL_ASSISTANT
-from agent_functions import trade_query_assistant, email_assistant
+from agent_functions import trade_query_assistant, email_assistant, sgt_assistant
 import copy
 from agent_functions import KnowledgeStores
 from vertexai.generative_models import (
@@ -22,29 +22,33 @@ load_dotenv()
 
 # Constants
 EUROCLEAR_ASSISTANT = "euroclear_assistant"
+SOP_ASSISTANT = "sop_assistant"
+PORTIONS_ASSISTANT = "portions_assistant"
 TRADE_QUERY_ASSISTANT = "trade_query_assistant"
 EMAIL_ASSISTANT = "email_assistant"
+SGT_ASSISTANT = "sgt_assistant"
 
 FUNCTION_TEXT = {
-    EUROCLEAR_ASSISTANT: "Searching euroclear knowledge",
+    EUROCLEAR_ASSISTANT: "Searching euroclear",
+    SOP_ASSISTANT: "Searching SOPs",
+    PORTIONS_ASSISTANT: "Searching portions",
     TRADE_QUERY_ASSISTANT: "Searching trades",
     EMAIL_ASSISTANT: "Drafting email",
+    SGT_ASSISTANT: "Converting time"
 }
 EUROCLEAR_PATH = "/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear"
 EUROCLEAR_COLLECTION = "ec_sop"
+SOP_PATH = "/Users/arjun/Documents/github/smart-agent/docs/sop-docs/acu_sop"
+SOP_COLLECTION = "sop_docs"
+PORTIONS_PATH = "/Users/arjun/Documents/github/smart-agent/docs/sop-docs/portions_sop"
+PORTIONS_COLLECTION = "portions_docs"
 EMAIL_PATH = ""
 EMAIL_COLLECTION = ""
 
 
+# reset chat history after every n convos? *********
 def main():
     st.title("SageBot")
-
-    # dict mapping function names to functions
-    # FUNCTION_DICT = {
-    #     EUROCLEAR_ASSISTANT: st.session_state.euroclear_store.knowledge_assistant,
-    #     TRADE_QUERY_ASSISTANT: trade_query_assistant,
-    #     #EMAIL_ASSISTANT: st.session_state.email_store.knowledge_assistant
-    # }
     
     # itialise sagebot stae on first run
     if "chat" not in st.session_state:
@@ -53,13 +57,16 @@ def main():
         st.session_state.chat = model.start_chat(response_validation=False)
         st.session_state.chat.send_message(f"{GENERAL_ASSISTANT}")
         st.session_state.euroclear_store = KnowledgeStores(EUROCLEAR_PATH, EUROCLEAR_COLLECTION, k=3) # init stores
-        # st.session_state.email_store = KnowledgeStores(EMAIL_PATH, EMAIL_COLLECTION, k=3) # replace with emails
-        # add other knowledge paths but link to fnc dict
+        st.session_state.sop_store = KnowledgeStores(SOP_PATH, SOP_COLLECTION, k=3)
+        st.session_state.portions_store = KnowledgeStores(PORTIONS_PATH, PORTIONS_COLLECTION, k=3)
         st.session_state.chat_history = [] # chat history for display
         st.session_state.function_dict = {
             EUROCLEAR_ASSISTANT: st.session_state.euroclear_store.knowledge_assistant,
+            SOP_ASSISTANT: st.session_state.sop_store.knowledge_assistant,
+            PORTIONS_ASSISTANT: st.session_state.portions_store.knowledge_assistant,
             TRADE_QUERY_ASSISTANT: trade_query_assistant,
-            #EMAIL_ASSISTANT: st.session_state.email_store.knowledge_assistant
+            SGT_ASSISTANT: sgt_assistant,
+            EMAIL_ASSISTANT: email_assistant,
         }
         st.session_state.sagebot = SmartAgent(st.session_state.function_dict, master_tools) # init agent
     st.session_state.sources = []
@@ -92,13 +99,14 @@ def main():
             # function execution happens here
             with st.spinner(f'{FUNCTION_TEXT.get(function)}: {query_string}'): # get function queries
                 function_return = st.session_state.sagebot.call_func(response) # call the agent determined function using agent generated args
+                st.success('Done!')
                 response = function_return[0] # function output -> model ->
                 additional_output = function_return[1] # additional function response to return optional objects
                 if not response: break
                 function_store = function
                 function = get_function_name(response)
                 # breaks out of loop when no more function to call
-        
+            
         assistant_response = response.text # get final response after function calls end
         
         if function_store: # function call right before agent responds

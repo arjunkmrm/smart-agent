@@ -20,10 +20,18 @@ from prompts import GENERAL_ASSISTANT
 load_dotenv()
 
 class AgentUno:
-    def __init__(self, function_dict, agent_tools) -> None:
+    """
+    agent uno: a customisable agent capable of calling other agents and functions.
+    currently only linked to google gemini, abstract layers for claude and openai could be added.
+    params:
+    function_dict: dictionary mapping of function names and functions
+    agent_tools: gemini tool definitions of functions
+    prime_prommpt: prime the model responses with an initial message, defaults to general assistant
+    """
+    def __init__(self, function_dict, agent_tools, prime_prompt = GENERAL_ASSISTANT) -> None:
         model = GenerativeModel("gemini-pro") # initialise model
         self.chat = model.start_chat(response_validation=False)
-        self.chat.send_message(f"{GENERAL_ASSISTANT}")
+        self.chat.send_message(prime_prompt)
         self.chat_history = []
         self.sources = []
         self.function_dict = function_dict
@@ -45,9 +53,9 @@ class AgentUno:
             return None
         
     def push_response(self, function_name, prompt):
+        """ push function response to model """
         # could technically append prompt - "whenever you need to use tools, please call the action_planner first to get a plan for how to execute the task"
         # or i send the response to action planner util, whose response is appended 
-        # specific trade action could be a function in itself
         response = self.chat.send_message(
             Part.from_function_response(
                 name=function_name,
@@ -59,6 +67,7 @@ class AgentUno:
         return response
     
     def get_func(self, user_query): # get the function which agent wants to call
+        """ get function which agent wants to call """
         response = self.chat.send_message(f"{user_query}", tools=[self.agent_tools]) # send user message
         self.chat_history.append({"role":"human", "content":user_query}) # append user query to history
         function_call = response.candidates[0].content.parts[0].function_call.name # get function call
@@ -66,7 +75,8 @@ class AgentUno:
             pass
         return response
     
-    def execute_task(self, task):
+    def execute_task(self, task:str) -> str:
+        """ a wrapper to execute task """
         response = self.get_func(task)
         function = get_function_name(response)
         while function:

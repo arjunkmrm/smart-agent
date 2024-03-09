@@ -51,6 +51,7 @@ class SmartAgent:
     def call_func(self, response): # routes to different functions based on call
         """ route agent response to functions """
         agent_function_call = get_function_name(response) # get the name of agent function
+        print(agent_function_call)
         if agent_function_call: # get corresponding function to agent function call
             handler_function = self.function_dict.get(agent_function_call) #getattr(self, handler_method_name)
             function_outputs = handler_function(response)
