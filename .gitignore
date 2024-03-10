@@ -5,3 +5,4 @@ llmnv
 #ignore others
 todos.txt
 smart-agent/notebooks
+*.DS_Store
