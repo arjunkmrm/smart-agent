@@ -6,5 +6,5 @@ llmnv
 todos.txt
 smart-agent/notebooks
 *.DS_Store
-gemini-agent/archive
+gemini_agent/archive
 *__pycache__
