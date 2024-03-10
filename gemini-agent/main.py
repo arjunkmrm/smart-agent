@@ -108,7 +108,7 @@ def main():
             # function execution happens here
             with st.spinner(f'{FUNCTION_TEXT.get(function)}: {query_string}'): # get function queries
                 function_return = st.session_state.sagebot.call_func(response) # call the agent determined function using agent generated args
-                st.success('Done!')
+                #st.success('Done!')
                 response = function_return[0] # function output -> model ->
                 additional_output = function_return[1] # additional function response to return optional objects
                 if not response: break

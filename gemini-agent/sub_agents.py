@@ -17,8 +17,8 @@ PPORTIONS_ASSISTANT = 'portions_assistant'
 SOP_ASSISTANT = 'sop_assistant'
 
 # funtion init
-euroclear_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear", "ec_sop") # euroclear stuff
-portions_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/portions_sop", "portions_sop") # magical portions
+euroclear_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear", "ec_docs") # euroclear stuff
+portions_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/portions_sop", "portions_docs") # magical portions
 sop_store = KnowledgeStores("/Users/arjun/Documents/github/smart-agent/docs/sop-docs/euroclear", "sop_docs") # acu sop docs
 
 # function mapping

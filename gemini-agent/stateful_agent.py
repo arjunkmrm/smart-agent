@@ -28,19 +28,9 @@ def get_function_name(response) -> str:
     return function_name
 
 # Constants
-EUROCLEAR_ASSISTANT = "euroclear_assistant"
-TRADE_QUERY_ASSISTANT = "trade_query_assistant"
-EMAIL_ASSISTANT = "email_assistant"
-
-# FUNCTION_TEXT = {
-#     EUROCLEAR_ASSISTANT: "Searching euroclear knowledge",
-#     TRADE_QUERY_ASSISTANT: "Searching trades",
-#     EMAIL_ASSISTANT: "Drafting email",
-# }
-# EUROCLEAR_PATH = "docs\\euroclear_md"
-# EUROCLEAR_COLLECTION = "ec_docs"
-# EMAIL_PATH = ""
-# EMAIL_COLLECTION = ""
+# EUROCLEAR_ASSISTANT = "euroclear_assistant"
+# TRADE_QUERY_ASSISTANT = "trade_query_assistant"
+# EMAIL_ASSISTANT = "email_assistant"
 
 class SmartAgent:
     def __init__(self, function_dict, agent_tools) -> None:
@@ -72,11 +62,11 @@ class SmartAgent:
         # could technically append prompt - "whenever you need to use tools, please call the action_planner first to get a plan for how to execute the task"
         # or i send the response to action planner util, whose response is appended 
         # specific trade action could be a function in itself
-        if function_name == EUROCLEAR_ASSISTANT:
-            prompt = prompt + f"""\n Note to sagebot assistant: if the provided answer does not contain enough information,
-            please modify the query and search again. """ # append directly to func response
-        elif function_name == TRADE_QUERY_ASSISTANT:
-            prompt = prompt + f"""\nNOTE: If there are more than three trades, only three are shown. The other trades have been sent to the user's display directly.""" # append directly
+        # if function_name == EUROCLEAR_ASSISTANT:
+        #     prompt = prompt + f"""\n Note to sagebot assistant: if the provided answer does not contain enough information,
+        #     please modify the query and search again. """ # append directly to func response
+        # elif function_name == TRADE_QUERY_ASSISTANT:
+        #     prompt = prompt + f"""\nNOTE: If there are more than three trades, only three are shown. The other trades have been sent to the user's display directly.""" # append directly
         response = self.chat.send_message(
             Part.from_function_response(
                 name=function_name,
