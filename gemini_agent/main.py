@@ -7,7 +7,7 @@ from utilities.utils import (
     get_function_args, 
     EMPTY_TABLE
     )
-from prompts import GENERAL_ASSISTANT
+from prompts import GENERAL_ASSISTANT, PLANNER_PROMPT
 from agent_tools import trade_query_assistant, email_assistant, sgt_assistant
 from agent_tools import KnowledgeStores
 from vertexai.generative_models import (
@@ -92,9 +92,9 @@ def main():
     if prompt := st.chat_input("What is up?"):
         with st.chat_message("user"): # display user message in chat message container
             st.markdown(prompt)
-        
-        # step 1: based on user input, get function call if any
-        response = st.session_state.sagebot.get_func(prompt) # get agent response to query
+        planner_prompt = f"{PLANNER_PROMPT}\n{prompt}" # add planning prompt to trigger agentic behaviour (should i add to evry prompt or once every n?)
+        response = st.session_state.sagebot.get_func(planner_prompt) # get agent response to query
+        st.session_state.sagebot.chat_history.append({"role":"human", "content":prompt}) # append user query to history
         function = get_function_name(response) # get function call if any
         function_store = None # an object to hold agent's n-1 function call, so it's not lost in the while loop
         

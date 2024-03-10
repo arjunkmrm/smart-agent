@@ -17,11 +17,11 @@ import numpy as np
 import numpy as np
 import pandas as pd
 from typing import List, Union
-from utils import tokenise
+from utilities.utils import tokenise
 import math
 import re
-from stop_words import STOP_WORDS
-from utils import levenshtein_distance, docstodf, generate_vertex_embedding, df_to_str
+from utilities.utils import STOP_WORDS
+from utilities.utils import levenshtein_distance, docstodf, generate_vertex_embedding, df_to_str
 import numpy as np
 import re
 from collections import Counter

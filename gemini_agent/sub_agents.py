@@ -1,4 +1,4 @@
-from agent_uno import AgentUno
+from agent_uno import SmartAgent
 from utilities.utils import knowledge_tools
 from agent_tools import KnowledgeStores
 from vertexai.generative_models import (
@@ -29,5 +29,5 @@ KNOWLEDGE_FUNCTION_DICT = {
         }
 
 knowledge_tools = Tool(function_declarations=[euroclear_assistant_func, sop_assistant_func, portions_assistant_func])
-knowledge_agent = AgentUno(KNOWLEDGE_FUNCTION_DICT, knowledge_tools)
+knowledge_agent = SmartAgent(KNOWLEDGE_FUNCTION_DICT, knowledge_tools)
 # can now map search knowledge in func dict to knowledge_agent.execute_task -> chooses from multiple knowledge bases to find answer

@@ -39,3 +39,13 @@ SELECT ccy, AVG(nominal) AS average_nominal FROM trades GROUP BY ccy;\n
 \nsql query:
 SELECT * FROM trades WHERE trade_status in ('unmatched', 'unsettled', 'no feedback') AND value_date < CURRENT_DATE;
 """
+
+PLANNER_PROMPT="""
+You have the following functions: euroclear_assistant, sop_assistant, portions_assistant, trade_query_assistant, email_assistant, sgt_assistant.\n
+You can use multiple function one by one.\n 
+For example:\n 
+user: what is input deadline for internal settlement in euroclear in sgt. Assistant: call euroclear_assistant (to get euroclear information) -> sgt_assistant (convert time to sgt)\n
+user: can email the ingredients for portions. Assistant: call portions_assistant (to get portions information) -> email_assistant (to draft email)
+now assist me with your agentic capabilities.
+"""
+

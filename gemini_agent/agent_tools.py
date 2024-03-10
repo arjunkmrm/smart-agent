@@ -104,6 +104,7 @@ def trade_query_assistant(response: str, db_name="C:\\Users\\arjunkumarm\\OneDri
             df = df[:3] # return only top 3 rows
             
             json_string = df.to_json(orient='records') # convert df to json string
+            json_string = json_string + """\nNOTE: If there are more than three trades, only three are shown. The other trades have been sent to the user's display directly.""" # append directly
             # add only top three to json string here only
             return (json_string, sql_query)
 

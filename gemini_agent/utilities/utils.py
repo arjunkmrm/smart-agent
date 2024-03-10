@@ -19,7 +19,7 @@ import sqlite3
 import pandas as pd
 import os
 import ast
-from stop_words import STOP_WORDS
+from utilities.stop_words import STOP_WORDS
 from dotenv import load_dotenv
 import textract
 load_dotenv()

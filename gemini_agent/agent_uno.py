@@ -1,6 +1,7 @@
 # note: for the demo, i could probably send emails to myself and store in a folder to get into df 
 # master agent for use with streamlit
 from dotenv import load_dotenv
+from utilities.utils import get_function_name
 import streamlit as st
 from prompts import GENERAL_ASSISTANT
 from agent_tools import KnowledgeStores
@@ -8,25 +9,12 @@ from vertexai.generative_models import (
     GenerativeModel,
     Part
 )
-
 #import win32com.client as win32
 # from ada_genai.vertexai import (
 #     GenerativeModel,
 #     Part
 # )
 load_dotenv()
-
-def get_function_name(response) -> str:
-    """
-    simple functon to get function name from gemini response
-    """
-    function_name = response.candidates[0].content.parts[0].function_call.name
-    return function_name
-
-# Constants
-# EUROCLEAR_ASSISTANT = "euroclear_assistant"
-# TRADE_QUERY_ASSISTANT = "trade_query_assistant"
-# EMAIL_ASSISTANT = "email_assistant"
 
 class SmartAgent:
     def __init__(self, function_dict, agent_tools) -> None:
@@ -55,14 +43,6 @@ class SmartAgent:
             return None
         
     def push_response(self, function_name, prompt):
-        # could technically append prompt - "whenever you need to use tools, please call the action_planner first to get a plan for how to execute the task"
-        # or i send the response to action planner util, whose response is appended 
-        # specific trade action could be a function in itself
-        # if function_name == EUROCLEAR_ASSISTANT:
-        #     prompt = prompt + f"""\n Note to sagebot assistant: if the provided answer does not contain enough information,
-        #     please modify the query and search again. """ # append directly to func response
-        # elif function_name == TRADE_QUERY_ASSISTANT:
-        #     prompt = prompt + f"""\nNOTE: If there are more than three trades, only three are shown. The other trades have been sent to the user's display directly.""" # append directly
         response = self.chat.send_message(
             Part.from_function_response(
                 name=function_name,
@@ -75,8 +55,8 @@ class SmartAgent:
     
     def get_func(self, user_query): # get the function which agent wants to call
         response = self.chat.send_message(f"{user_query}", tools=[self.agent_tools]) # send user message
-        self.chat_history.append({"role":"human", "content":user_query}) # append user query to history
-        function_call = response.candidates[0].content.parts[0].function_call.name # get function call
+        # self.chat_history.append({"role":"human", "content":user_query}) # append user query to history
+        function_call = get_function_name(response) # get function call
         if not function_call: # if not a function call, just append agent response
             pass
         return response
