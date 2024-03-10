@@ -7,3 +7,4 @@ todos.txt
 smart-agent/notebooks
 *.DS_Store
 gemini-agent/archive
+*__pycache__
