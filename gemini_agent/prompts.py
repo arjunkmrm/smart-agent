@@ -7,7 +7,7 @@ not make up your answers. Always base your answers on the assistant responses. D
 """
 
 GENERATE_SQL_PROMPT=""" 
-I have an SQL table with bond trade data. Here are the columns and their descriptions:
+I have an SQL table called 'trades' with bond trade data. Here are the columns and their descriptions:
 \ndeal_reference: unique identifier of bond trade
 \ncounterparty: the counterparty participating at the other side of a trade
 \nisin: bond security code
@@ -40,12 +40,31 @@ SELECT ccy, AVG(nominal) AS average_nominal FROM trades GROUP BY ccy;\n
 SELECT * FROM trades WHERE trade_status in ('unmatched', 'unsettled', 'no feedback') AND value_date < CURRENT_DATE;
 """
 
-PLANNER_PROMPT="""
-You have the following functions: euroclear_assistant, sop_assistant, portions_assistant, trade_query_assistant, email_assistant, sgt_assistant.\n
-You can use multiple function one by one.\n 
-For example:\n 
-user: what is input deadline for internal settlement in euroclear in sgt. Assistant: call euroclear_assistant (to get euroclear information) -> sgt_assistant (convert time to sgt)\n
-user: can email the ingredients for portions. Assistant: call portions_assistant (to get portions information) -> email_assistant (to draft email)
-now assist me with your agentic capabilities.
+SWIFT_ASSISTANT_PROMPT=""" 
+I have an SQL table called templates with swift message templates. Here are the columns and their descriptions:\n
+direction: whether it's 'buy' or 'sell' instruction\n
+place_of_settlement: the place of trade settlement. Could be one of 'euroclear' or 'fedwire'\n
+sender: swift code of the sender\n
+receiver: swift code of the receiver\n
+template: swift message template\n
+
+Your task is to generate an executable SQL query based on the user's query in english.\n
+IMPORTANT NOTE: only and directly output the SQL query without any comments.\n
+
+Here are some example:\n
+user query: "What's the template for buy trade in fedwire?"\n
+sql_query: "SELECT * FROM templates WHERE direction = 'buy' AND place_of_settlement = 'fedwire';"\n
+
+user_query: what's the template for sell trade in euroclear?\n
+sql_query: SELECT * FROM templates WHERE direction = 'sell' AND place_of_settlement = 'euroclear';\n
 """
 
+
+PLANNER_PROMPT="""
+You have the following functions: euroclear_assistant, sop_assistant, trade_query_assistant, swift_query_assistant, email_assistant, sgt_assistant.\n
+You can use multiple function one by one.\n
+For example:\n 
+user: what is input deadline for internal settlement in euroclear in sgt. Assistant: call euroclear_assistant (to get euroclear information) -> sgt_assistant (convert time to sgt)\n
+user: can email an overview of the china market in ec. Assistant: call euroclear_assistant (to get china market info in euroclear) -> email_assistant (to draft email)
+now assist me with your agentic capabilities.
+"""

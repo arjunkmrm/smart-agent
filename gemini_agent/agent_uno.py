@@ -9,7 +9,7 @@ from vertexai.generative_models import (
     GenerativeModel,
     Part
 )
-#import win32com.client as win32
+# import win32com.client as win32
 # from ada_genai.vertexai import (
 #     GenerativeModel,
 #     Part
@@ -19,8 +19,8 @@ load_dotenv()
 class SmartAgent:
     def __init__(self, function_dict, agent_tools) -> None:
         # test cleaner abstract for agents 
-        model = GenerativeModel("gemini-pro") # initialise model
-        self.chat = model.start_chat(response_validation=False)
+        self.model = GenerativeModel("gemini-pro") # initialise model # set temperature!!!******************
+        self.chat = self.model.start_chat(response_validation=False)
         self.chat_history = []
         self.sources = []
         self.function_dict = function_dict
@@ -72,4 +72,3 @@ class SmartAgent:
         assistant_response = response.text
 
         return assistant_response
-        

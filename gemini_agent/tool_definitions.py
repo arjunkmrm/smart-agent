@@ -9,7 +9,7 @@ from vertexai.language_models import TextEmbeddingModel
 import pandas as pd
 from utilities.stop_words import STOP_WORDS
 from dotenv import load_dotenv
-import textract
+# import textract
 # from ada_genai.vertexai import (
 #     Content,
 #     FunctionDeclaration,
@@ -91,6 +91,23 @@ trade_query_func = FunctionDeclaration(
   },
 )
 
+swift_query_func = FunctionDeclaration(
+    name="trade_query_assistant",
+    description="an assistant who finds SWIFT trade message templates for you", # can add more
+    parameters={
+    "type": "object",
+    "properties": {
+        "query": {
+            "type": "string",
+            "description": "user query"
+        },
+    },
+         "required": [
+            "query"
+      ]
+  },
+)
+
 draft_email_func = FunctionDeclaration(
     name="email_assistant",
     description="an assistant who helps you draft emails", # can add more
@@ -138,4 +155,8 @@ convert_sgt_func = FunctionDeclaration(
             "time",
       ]
   },
+)
+
+master_tools = Tool(
+  function_declarations=[euroclear_assistant_func, sop_assistant_func, portions_assistant_func, trade_query_func, swift_query_func, draft_email_func, convert_sgt_func],
 )
